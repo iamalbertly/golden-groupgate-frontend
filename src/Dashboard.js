@@ -66,19 +66,21 @@ function Dashboard() {
     const calculatePrice = () => {
         if (subscriptions.length === 0) return;
 
-        const totalCost = subscriptions.reduce((acc, sub) => acc + sub.subscription_cost_tzs, 0);
-        const totalHours = subscriptions.reduce((acc, sub) => {
-            const remainingTime = new Date(sub.expiration_date) - new Date();
-            return acc + Math.floor(remainingTime / (1000 * 60 * 60)); // Convert ms to hours
-        }, 0);
+        const activeSubscription = subscriptions.find(sub => sub.service_name === selectedService);
+        if (!activeSubscription) return;
 
-        const pricePerHour = totalCost / groupSize / totalHours;
+        const totalCost = activeSubscription.cost_usd;
+        const durationDays = activeSubscription.duration_days;
+        const activeCustomers = customers.filter(customer => customer.remaining_seconds > 0 && customer.services.includes(selectedService)).length;
+
+        const pricePerHour = (totalCost / (durationDays * 24)) / (activeCustomers || 1);
         setPricePerToken(pricePerHour * hoursToPurchase);
+        setGroupSize(activeCustomers);
     };
 
     useEffect(() => {
         calculatePrice();
-    }, [groupSize, hoursToPurchase, subscriptions]);
+    }, [selectedService, customers, subscriptions, hoursToPurchase]);
 
     const handleOpenAddCustomerModal = () => {
         setIsAddCustomerModalOpen(true);
@@ -158,77 +160,76 @@ function Dashboard() {
                 </div>
             </nav>
             <div className="dashboard-container">
-                <div className="current-time">
-                    {currentTime.toLocaleDateString()} {currentTime.toLocaleTimeString('en-GB')}
-                </div>
-                <div className="service-selection">
-                    <label htmlFor="service">Select AI Service:</label>
-                    <select id="service"
-                        onChange={(e) => setSelectedService(e.target.value)}  >
-                        {services.map((service) => (
-                            <option key={service} value={service}>
-                                {service}
-                            </option>
-                        ))}
-                    </select>
-                </div>
                 <div className="status-section">
-                    <div className="customer-overview" style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', marginTop: '20px', width: '100%' }}>
-                        <span style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <h3>Customers ({customers.length})</h3>
-                            <button onClick={handleOpenAddCustomerModal}>Add Customer</button>
-                        </span>
-                        <div className="customer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px', maxHeight: '400px', overflowY: 'auto' }}>
-                            {customers.map((customer) => (
-                                <div key={customer.id} className="customer-item" style={{
-                                    backgroundColor: customer.remaining_seconds > 0 ? '#e0ffe0' : '#ffe0e0',
-                                    height: '200px',
-                                    padding: '10px',
-                                    borderRadius: '5px',
-                                    position: 'relative',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between'
-                                }}>
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: '5px',
-                                        right: '5px',
-                                        padding: '2px 5px',
-                                        borderRadius: '3px',
-                                        fontSize: '0.8em',
-                                        fontWeight: 'bold',
-                                        border: '1px solid #ccc'
-                                    }}>
-                                        {customer.service || 'No Subscription'}
-                                    </div>
-                                    <div>
-                                        <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>{customer.name}</p>
-                                        <p><FaEnvelope /> {customer.email}</p>
-                                        <p><FaPhone /> {customer.phone_number}</p>
-                                        <p>Remaining Hours: {Math.floor(customer.remaining_seconds / 3600)}</p>
-                                    </div>
-                                    <div>
-                                        <button onClick={() => handleOpenGenerateTokenModal(customer.id)}>Add Hours</button>
-                                        <button onClick={() => handleDeleteCustomer(customer.id)} disabled={customer.remaining_seconds > 0}>Delete</button>
-                                    </div>
-                                </div>
+                    <div className="current-time">
+                        {currentTime.toLocaleDateString()} {currentTime.toLocaleTimeString('en-GB')}
+                    </div>
+                    <div className="service-selection">
+                        <label htmlFor="service">Select AI Service:</label>
+                        <select id="service"
+                            onChange={(e) => setSelectedService(e.target.value)}
+                            value={selectedService}>
+                            {services.map((service) => (
+                                <option key={service} value={service}>
+                                    {service}
+                                </option>
                             ))}
-                        </div>
+                        </select>
+                    </div>
+                    <div className="price-info">
+                        <h3>Price per Hourly Token: {pricePerToken.toFixed(2)} TZS</h3>
+                        <p>Group Size: {groupSize}</p>
+                        <p>Hours to Purchase: 
+                            <input 
+                                type="number" 
+                                value={hoursToPurchase} 
+                                onChange={(e) => setHoursToPurchase(Number(e.target.value))} 
+                                min="1"
+                            />
+                        </p>
                     </div>
                 </div>
-                <div className="grid-container">
-                    <div className="card">
-                        <h2><FaMoneyBillWave /> Price per Hourly Token</h2>
-                        <div>
-                            <label>Group Size:</label>
-                            <input type="number" value={groupSize} onChange={(e) => setGroupSize(e.target.value)} min="1" />
-                        </div>
-                        <div>
-                            <label>Hours to Purchase:</label>
-                            <input type="number" value={hoursToPurchase} onChange={(e) => setHoursToPurchase(e.target.value)} min="1" />
-                        </div>
-                        <h3>Price per Hourly Token: {pricePerToken.toFixed(2)} TZS</h3>
+                <div className="customer-overview" style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', marginTop: '20px', width: '100%' }}>
+                    <span style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <h3>Customers ({customers.length})</h3>
+                        <button onClick={handleOpenAddCustomerModal}>Add Customer</button>
+                    </span>
+                    <div className="customer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px', maxHeight: '400px', overflowY: 'auto' }}>
+                        {customers.map((customer) => (
+                            <div key={customer.id} className="customer-item" style={{
+                                backgroundColor: customer.remaining_seconds > 0 ? '#e0ffe0' : '#ffe0e0',
+                                height: '200px',
+                                padding: '10px',
+                                borderRadius: '5px',
+                                position: 'relative',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between'
+                            }}>
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '5px',
+                                    right: '5px',
+                                    padding: '2px 5px',
+                                    borderRadius: '3px',
+                                    fontSize: '0.8em',
+                                    fontWeight: 'bold',
+                                    border: '1px solid #ccc'
+                                }}>
+                                    {customer.service || 'No Subscription'}
+                                </div>
+                                <div>
+                                    <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>{customer.name}</p>
+                                    <p><FaEnvelope /> {customer.email}</p>
+                                    <p><FaPhone /> {customer.phone_number}</p>
+                                    <p>Remaining Hours: {Math.floor(customer.remaining_seconds / 3600)}</p>
+                                </div>
+                                <div>
+                                    <button onClick={() => handleOpenGenerateTokenModal(customer.id)}>Add Hours</button>
+                                    <button onClick={() => handleDeleteCustomer(customer.id)} disabled={customer.remaining_seconds > 0}>Delete</button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>

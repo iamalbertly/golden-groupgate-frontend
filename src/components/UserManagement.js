@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './UserManagement.css'; // Create a separate CSS file for User Management styles
+import './UserManagement.css';
 
-function CustomerManagement({ setMessage, setError }) {
+function UserManagement({ setMessage, setError }) {
   const [customerName, setCustomerName] = useState('');
   const [customers, setCustomers] = useState([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [customerTokens, setCustomerTokens] = useState([]);
+  const [amountPaid, setAmountPaid] = useState('');
+  const [generatedToken, setGeneratedToken] = useState('');
 
   useEffect(() => {
     fetchCustomers();
@@ -31,7 +33,7 @@ function CustomerManagement({ setMessage, setError }) {
     axios.post('http://localhost:5000/addCustomer', { customerName })
       .then(response => {
         setMessage('Customer added successfully');
-        fetchCustomers();  // Refresh the list of customers
+        fetchCustomers();
       })
       .catch(error => {
         console.error('Error adding customer:', error);
@@ -55,11 +57,31 @@ function CustomerManagement({ setMessage, setError }) {
       });
   };
 
+  const handleGenerateToken = () => {
+    if (!selectedCustomerId || !amountPaid) {
+      setError('All fields are required');
+      return;
+    }
+
+    const conversionRate = 1000; // Example conversion rate
+    const hoursPurchased = amountPaid / conversionRate;
+
+    axios.post('http://localhost:5000/generateToken', { customerId: selectedCustomerId, amountPaid, hoursPurchased })
+      .then(response => {
+        setGeneratedToken(response.data.token);
+        setMessage('Token generated successfully');
+        fetchCustomerTokens(selectedCustomerId);
+      })
+      .catch(error => {
+        console.error('Error generating token:', error);
+        setError('Error generating token. Please try again.');
+      });
+  };
+
   return (
-    <div className="customer-management">
-      <h2>Customer Management</h2>
-      <div className="form-group">
-        <label>Add Customer:</label>
+    <div className="user-management">
+      <h2>User Management</h2>
+      <div className="add-customer">
         <input type="text" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Enter customer name" />
         <button onClick={handleAddCustomer}>Add Customer</button>
       </div>
@@ -67,10 +89,18 @@ function CustomerManagement({ setMessage, setError }) {
         <h3>Customers</h3>
         {customers.map(customer => (
           <div key={customer.id} onClick={() => selectCustomer(customer.id)} className="customer-item">
-            {customer.username}
+            {customer.name}
           </div>
         ))}
       </div>
+      {selectedCustomerId && (
+        <div className="token-generation">
+          <h3>Generate Token</h3>
+          <input type="number" value={amountPaid} onChange={(e) => setAmountPaid(e.target.value)} placeholder="Amount Paid (TZS)" />
+          <button onClick={handleGenerateToken}>Generate Token</button>
+          {generatedToken && <div>Generated Token: {generatedToken}</div>}
+        </div>
+      )}
       <div className="customer-tokens">
         <h3>Customer Tokens</h3>
         {customerTokens.map(token => (
@@ -83,4 +113,4 @@ function CustomerManagement({ setMessage, setError }) {
   );
 }
 
-export default CustomerManagement;
+export default UserManagement;
