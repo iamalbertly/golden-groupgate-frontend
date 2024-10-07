@@ -133,3 +133,53 @@ th {
   border: 1px solid #bdc3c7;
   border-radius: 4px;
 }
+
+.subscription-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+}
+
+.subscription-card.expired {
+  opacity: 0.7;
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 20px;
+  background-color: #4CAF50;
+}
+
+.customer-list {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.subscription-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.remaining-time, .status-box {
+  flex: 1;
+}
+
+.status-box {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.remaining-hours {
+  margin-top: 10px;
+}
