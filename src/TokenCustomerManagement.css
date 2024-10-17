@@ -1,0 +1,59 @@
+.token-customer-management {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.customer-section, .token-section {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.customer-list, .tokens-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.customer-list li, .tokens-list li {
+  padding: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.customer-list li:hover, .tokens-list li:hover {
+  background-color: #f7fafc;
+}
+
+.token-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.token-form input, .token-form button {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.token-form button {
+  background-color: #4299e1;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.token-form button:hover {
+  background-color: #3182ce;
+}
+
+.error-message {
+  color: #d13438;
+  margin-top: 10px;
+}

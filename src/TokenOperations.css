@@ -1,0 +1,32 @@
+.token-operations {
+  padding: 20px;
+}
+
+.decode-section, .purchase-section {
+  margin-bottom: 20px;
+}
+
+input, button {
+  padding: 10px;
+  margin-right: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.decoded-info {
+  background-color: var(--secondary-color);
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.error-message {
+  color: #f85149;
+  margin-top: 10px;
+}

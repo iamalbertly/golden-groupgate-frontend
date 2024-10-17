@@ -122,64 +122,206 @@ th {
 }
 
 .token-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.form-group {
   display: flex;
   flex-direction: column;
-  max-width: 300px;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #555;
 }
 
 .form-input {
-  margin-bottom: 10px;
-  padding: 8px;
-  border: 1px solid #bdc3c7;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.generate-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.generate-button:hover {
+  background-color: #45a049;
+}
+
+.remaining-hours {
+  margin-top: 16px;
+  background-color: #f8f9fa;
+  padding: 16px;
   border-radius: 4px;
 }
 
-.subscription-card {
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-}
-
-.subscription-card.expired {
-  opacity: 0.7;
+.remaining-hours p {
+  margin: 0;
+  color: #333;
 }
 
 .progress-bar {
-  width: 100%;
+  margin-top: 8px;
+  height: 8px;
   background-color: #e0e0e0;
-  border-radius: 5px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .progress {
-  height: 20px;
+  height: 100%;
   background-color: #4CAF50;
+  transition: width 0.3s ease;
 }
 
-.customer-list {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-radius: 5px;
+.tokens-table {
+  margin-top: 24px;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-.subscription-details {
+.tokens-table th,
+.tokens-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.tokens-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.tokens-table tr:last-child td {
+  border-bottom: none;
+}
+
+.token-decoder {
+  margin-top: 24px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.token-input-container {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 16px;
 }
 
-.remaining-time, .status-box {
-  flex: 1;
+.token-input {
+  flex-grow: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
-.status-box {
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 5px;
+.decode-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 16px;
+  font-weight: 600;
 }
 
-.remaining-hours {
-  margin-top: 10px;
+.decode-button:hover {
+  background-color: #0056b3;
+}
+
+.decoded-token-info {
+  margin-top: 24px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.decoded-token-info h4 {
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.decoded-token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.decoded-token-item {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.decoded-token-item .label {
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.decoded-token-item .value {
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .token-form {
+    grid-template-columns: 1fr;
+  }
+
+  .token-input-container {
+    flex-direction: column;
+  }
+
+  .decoded-token-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.action-button {
+  padding: 6px 12px;
+  margin: 0 4px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.copy-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.copy-button:hover {
+  background-color: #45a049;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #d32f2f;
 }

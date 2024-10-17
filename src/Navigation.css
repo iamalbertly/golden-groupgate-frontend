@@ -1,0 +1,31 @@
+.navigation {
+  background-color: var(--secondary-color);
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navigation a {
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 5px 10px;
+}
+
+.navigation a:hover {
+  background-color: var(--hover-color);
+  border-radius: 4px;
+}
+
+.navigation button {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.navigation button:hover {
+  background-color: var(--hover-color);
+}

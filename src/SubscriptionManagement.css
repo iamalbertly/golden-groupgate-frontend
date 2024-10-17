@@ -1,0 +1,19 @@
+.subscription-management table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.subscription-management th, .subscription-management td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.subscription-management th {
+  background-color: #f2f2f2;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
+}

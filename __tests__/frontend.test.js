@@ -78,7 +78,7 @@ describe('Frontend Journey Tests', () => {
     });
 
     // 6. Generate Token
-    axios.post.mockResolvedValueOnce({ data: { token: 'generated-token' } });
+    axios.post.mockResolvedValueOnce({ data: { token: '12345678901234567890' } });
     
     fireEvent.click(screen.getByText('Generate Token'));
     fireEvent.change(screen.getByLabelText('Customer:'), { target: { value: '1' } });
@@ -97,12 +97,36 @@ describe('Frontend Journey Tests', () => {
 
     // 7. Verify Token Generation
     await waitFor(() => {
-      expect(screen.getByText('generated-token')).toBeInTheDocument();
+      expect(screen.getByText('1234 5678 9012 3456 7890')).toBeInTheDocument();
     });
 
-    if (!screen.getByText('generated-token')) {
-      throw new Error('Token generation failed or token not displayed.');
+    if (!screen.getByText('1234 5678 9012 3456 7890')) {
+      throw new Error('Token generation failed or token not displayed correctly.');
     }
+
+    // 8. Decode Token
+    axios.post.mockResolvedValueOnce({
+      data: {
+        userId: '1234',
+        serviceId: '5678',
+        customerName: 'Test Customer',
+        serviceName: 'TestAI',
+        hoursPurchased: 5,
+        amountPaid: 1000,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString()
+      }
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('Enter 20-digit token (e.g., 1234 5678 9012 3456 7890)'), { target: { value: '12345678901234567890' } });
+    fireEvent.click(screen.getByText('Decode Token'));
+
+    await waitFor(() => {
+      expect(screen.getByText('User Code: 1234')).toBeInTheDocument();
+      expect(screen.getByText('Service Code: 5678')).toBeInTheDocument();
+      expect(screen.getByText(/Expiration:/)).toBeInTheDocument();
+      expect(screen.getByText('Hours Allocated: 5')).toBeInTheDocument();
+    });
 
     // 8. Logout
     fireEvent.click(screen.getByText('Logout'));

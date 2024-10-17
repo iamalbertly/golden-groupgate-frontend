@@ -1,0 +1,107 @@
+.dashboard-management {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 24px;
+  color: #333;
+}
+
+.header nav .btn {
+  background-color: #0078d4;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.header nav .btn:hover {
+  background-color: #005a9e;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.metric {
+  text-align: center;
+  padding: 15px;
+  background-color: #f0f4f8;
+  border-radius: 8px;
+}
+
+.metric h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.metric p {
+  margin: 10px 0 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.activity-list, .overview-table, .service-list {
+  list-style: none;
+  padding: 0;
+}
+
+.activity-list li, .overview-table tr, .service-list li {
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.overview-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.overview-table th,
+.overview-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.overview-table th {
+  background-color: #f7fafc;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.overview-table tr:last-child td {
+  border-bottom: none;
+}
+
+.service-list li {
+  display: flex;
+  justify-content: space-between;
+}

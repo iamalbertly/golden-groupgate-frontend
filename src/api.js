@@ -1,24 +1,43 @@
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const api = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: API_URL,
+  withCredentials: true,
 });
 
-// Simulate network error (uncomment for testing)
-// api.interceptors.request.use(async (config) => {
-//   await new Promise(resolve => setTimeout(resolve, 1000));
-//   throw new Error('Network Error');
-// });
-
 api.interceptors.request.use(
-  (config) => {
+  config => {
     const token = localStorage.getItem('token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+  //  console.log(`Sending ${config.method.toUpperCase()} request to ${config.url}`);
     return config;
   },
-  (error) => {
+  error => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  response => {
+    console.log(`Received response from ${response.config.url}:`, response.status);
+    return response;
+  },
+  error => {
+    console.error('API Error:', error);
+    if (error.response) {
+      console.error('Response data:', error.response.data);
+      console.error('Response status:', error.response.status);
+      console.error('Response headers:', error.response.headers);
+    } else if (error.request) {
+      console.error('No response received:', error.request);
+    } else {
+      console.error('Error setting up request:', error.message);
+    }
     return Promise.reject(error);
   }
 );
