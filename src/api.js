@@ -13,7 +13,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-  //  console.log(`Sending ${config.method.toUpperCase()} request to ${config.url}`);
     return config;
   },
   error => {
@@ -33,6 +32,10 @@ api.interceptors.response.use(
       console.error('Response data:', error.response.data);
       console.error('Response status:', error.response.status);
       console.error('Response headers:', error.response.headers);
+      if (error.response.status === 403) {
+        // Redirect to login if 403 Forbidden
+        window.location.href = '/login';
+      }
     } else if (error.request) {
       console.error('No response received:', error.request);
     } else {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from './api';
 
 function TokenPurchase() {
@@ -6,6 +6,20 @@ function TokenPurchase() {
   const [amountPaid, setAmountPaid] = useState('');
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
+  const [services, setServices] = useState([]); // New state for services
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await api.get('/activeServices'); // Fetch active services
+        setServices(response.data.services); // Assume response contains a 'services' array
+      } catch (error) {
+        setError('Failed to load services. Please try again.');
+      }
+    };
+
+    fetchServices();
+  }, []); // Empty dependency array to run once on mount
 
   const handlePurchase = async () => {
     try {
@@ -22,8 +36,11 @@ function TokenPurchase() {
       <h2>Purchase Tokens</h2>
       <select value={service} onChange={(e) => setService(e.target.value)}>
         <option value="">Select Service</option>
-        <option value="OpenAI">OpenAI</option>
-        <option value="Claude AI">Claude AI</option>
+        {services.map((service) => (
+          <option key={service.id} value={service.name}>
+            {service.name}
+          </option>
+        ))}
       </select>
       <input
         type="number"

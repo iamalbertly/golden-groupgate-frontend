@@ -2,65 +2,74 @@ import React, { useState, useEffect } from 'react';
 import api from './api';
 import './Modal.css';
 
-function SubscriptionModal({ show, onClose, onAdd }) {
+function SubscriptionModal({ show, onClose, onAdd, subscription }) {
   const [providers, setProviders] = useState([]);
-  const [selectedProvider, setSelectedProvider] = useState('');
-  const [cost, setCost] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [duration, setDuration] = useState(30);
+  const [selectedProvider, setSelectedProvider] = useState(subscription ? subscription.provider_id : null);
+  const [cost, setCost] = useState(subscription ? subscription.cost : '');
+  const [startDate, setStartDate] = useState(subscription ? subscription.start_date : '');
+  const [durationDays, setDurationDays] = useState(subscription ? subscription.duration_days : 30);
   const [error, setError] = useState('');
   const [currency, setCurrency] = useState('USD');
 
   useEffect(() => {
-    if (show) {
-      fetchProviders();
-    }
-  }, [show]);
+    fetchProviders();
+  }, []);
 
   const fetchProviders = async () => {
     try {
       const response = await api.get('/subscription-providers');
       setProviders(response.data);
+      if (response.data.length > 0 && !subscription) {
+        setSelectedProvider(response.data[0].id);
+        setCost(response.data[0].default_cost);
+      }
     } catch (error) {
-      console.error('Error fetching providers:', error);
-      setError('Failed to fetch providers');
+      console.error('Error fetching providers:', error.response?.data || error.message);
+      setError('Failed to load providers. ' + (error.response?.data?.details || 'Please try again later.'));
     }
   };
 
-  const handleProviderChange = (e) => {
-    const provider = providers.find(p => p.id === parseInt(e.target.value));
-    setSelectedProvider(provider.id);
-    setCost(provider.default_cost);
+  const handleProviderChange = (providerId) => {
+    const provider = providers.find(p => p.id === parseInt(providerId));
+    if (provider) {
+      setSelectedProvider(provider.id);
+      setCost(provider.default_cost);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const response = await api.post('/subscriptions', {
-        provider_id: selectedProvider,
-        cost,
-        start_date: startDate,
-        duration_days: duration,
-        currency
-      });
-      onAdd(response.data);
+      if (subscription) {
+        await api.put(`/subscriptions/${subscription.id}`, {
+          providerId: selectedProvider,
+          cost,
+          startDate,
+          durationDays,
+          currency
+        });
+      } else {
+        await api.post('/subscriptions', {
+          providerId: selectedProvider,
+          cost,
+          startDate,
+          durationDays,
+          currency
+        });
+      }
+      onAdd();
       onClose();
     } catch (error) {
-      console.error('Error adding subscription:', error);
-      setError('Failed to add subscription: ' + (error.response?.data?.error || error.message));
+      setError(error.response?.data?.error || 'An error occurred while saving the subscription');
     }
   };
 
-  if (!show) return null;
-
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <h2>Add Subscription</h2>
-        {error && <div className="error-message">{error}</div>}
+    show && (
+      <div className="modal">
         <form onSubmit={handleSubmit}>
-          <select value={selectedProvider} onChange={handleProviderChange} required>
+          <select onChange={(e) => handleProviderChange(e.target.value)} value={selectedProvider || ''}>
             <option value="">Select a provider</option>
             {providers.map(provider => (
               <option key={provider.id} value={provider.id}>{provider.name}</option>
@@ -77,12 +86,13 @@ function SubscriptionModal({ show, onClose, onAdd }) {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
+            placeholder="Start Date"
             required
           />
           <input
             type="number"
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
+            value={durationDays}
+            onChange={(e) => setDurationDays(e.target.value)}
             placeholder="Duration (days)"
             required
           />
@@ -90,11 +100,11 @@ function SubscriptionModal({ show, onClose, onAdd }) {
             <option value="USD">USD</option>
             <option value="TZS">TZS</option>
           </select>
-          <button type="submit">Add Subscription</button>
-          <button type="button" onClick={onClose}>Close</button>
+          <button type="submit">{subscription ? 'Update Subscription' : 'Add Subscription'}</button>
+          {error && <div className="error-message">{error}</div>}
         </form>
       </div>
-    </div>
+    )
   );
 }
 

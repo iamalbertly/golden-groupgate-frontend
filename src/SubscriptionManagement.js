@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from './api';
 import './SubscriptionManagement.css';
-import EditSubscriptionModal from './EditSubscriptionModal';
-import AddCustomerModal from './AddCustomerModal';
 import SubscriptionModal from './SubscriptionModal';
 import GenerateTokenModal from './GenerateTokenModal';
 
@@ -11,10 +9,18 @@ function SubscriptionManagement() {
   const [error, setError] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [subscriptionToDelete, setSubscriptionToDelete] = useState(null);
+  const [customerCounts, setCustomerCounts] = useState({});
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showGenerateTokenModal, setShowGenerateTokenModal] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState(null);
 
   useEffect(() => {
     fetchSubscriptions();
     fetchCustomerCounts();
+    const interval = setInterval(() => {
+      setSubscriptions((subs) => [...subs]); // Trigger re-render every second
+    }, 1000);
+    return () => clearInterval(interval); // Cleanup interval on component unmount
   }, []);
 
   const fetchSubscriptions = async () => {
@@ -22,72 +28,79 @@ function SubscriptionManagement() {
       const response = await api.get('/subscriptions');
       setSubscriptions(response.data);
     } catch (error) {
-      setError('Failed to fetch subscriptions. Please try again.');
+      console.error('Error fetching subscriptions:', error.response?.data || error.message);
+      setError('Failed to load subscriptions. ' + (error.response?.data?.details || 'Please try again later.'));
     }
   };
 
   const fetchCustomerCounts = async () => {
     try {
       const response = await api.get('/subscription-customer-counts');
-      setCustomerCounts(response.data);
+      const counts = response.data.reduce((acc, item) => {
+        acc[item.provider_id] = item.customer_count;
+        return acc;
+      }, {});
+      setCustomerCounts(counts);
     } catch (error) {
-      console.error('Failed to fetch customer counts:', error);
+      console.error('Error fetching customer counts:', error.response?.data || error.message);
+      setError('Failed to load customer counts. ' + (error.response?.data?.details || 'Please try again later.'));
     }
   };
 
-  const handleEditClick = (subscription) => {
+  const handleDelete = (subscriptionId) => {
+    setSubscriptionToDelete(subscriptionId);
+    setShowConfirmation(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await api.delete(`/subscriptions/${subscriptionToDelete}`);
+      setSubscriptions(subscriptions.filter(sub => sub.id !== subscriptionToDelete));
+      setShowConfirmation(false);
+      setSubscriptionToDelete(null);
+    } catch (error) {
+      console.error('Error deleting subscription:', error.response?.data || error.message);
+      setError('Failed to delete subscription. ' + (error.response?.data?.details || 'Please try again later.'));
+    }
+  };
+
+  const handleEdit = (subscription) => {
     setSelectedSubscription(subscription);
     setShowEditModal(true);
   };
 
-  const handleUpdateSubscription = (updatedSubscription) => {
-    setSubscriptions(subs => subs.map(sub => sub.id === updatedSubscription.id ? updatedSubscription : sub));
-    setShowEditModal(false);
-  };
-
-  const handleAddCustomer = (subscriptionId) => {
-    setSelectedSubscription(subscriptions.find(sub => sub.id === subscriptionId));
-    setShowAddCustomerModal(true);
-  };
-
-  const handleCustomerAdded = (customerData) => {
-    fetchCustomerCounts();
-    setShowAddCustomerModal(false);
-    setSelectedCustomerForToken(customerData);
+  const handleAddCustomer = (subscription) => {
+    setSelectedSubscription(subscription);
     setShowGenerateTokenModal(true);
   };
 
-  const handleAddSubscription = () => {
-    setShowAddSubscriptionModal(true);
-  };
+  const calculateRemainingTime = (startDate, durationDays) => {
+    const endDate = new Date(new Date(startDate).getTime() + durationDays * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const remainingTime = endDate - now;
 
-  const handleSubscriptionAdded = () => {
-    fetchSubscriptions();
-    setShowAddSubscriptionModal(false);
-  };
+    const weeks = Math.floor(remainingTime / (1000 * 60 * 60 * 24 * 7));
+    const days = Math.floor((remainingTime % (1000 * 60 * 60 * 24 * 7)) / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
 
-  const handleDeleteSubscription = async (subscriptionId) => {
-    try {
-      await api.delete(`/subscriptions/${subscriptionId}`);
-      fetchSubscriptions(); // Refresh the list after deletion
-    } catch (error) {
-      console.error('Error deleting subscription:', error);
-      setError('Failed to delete subscription: ' + (error.response?.data?.error || error.message));
-    }
+    return `${weeks}w ${days}d ${hours}h ${minutes}m ${seconds}s`;
   };
 
   return (
     <div className="subscription-management">
       <h1>Subscription Management</h1>
       {error && <div className="error-message">{error}</div>}
-      <button onClick={handleAddSubscription}>Add Subscription</button>
       <table>
         <thead>
           <tr>
             <th>Service Name</th>
+            <th>Cost</th>
             <th>Start Date</th>
             <th>Duration (days)</th>
-            <th>Current Rate</th>
+            <th>Remaining Time</th>
+            <th>Customer Count</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -95,54 +108,39 @@ function SubscriptionManagement() {
           {subscriptions.map(sub => (
             <tr key={sub.id}>
               <td>{sub.service_name}</td>
+              <td>{sub.cost}</td>
               <td>{new Date(sub.start_date).toLocaleDateString()}</td>
               <td>{sub.duration_days}</td>
-              <td>${sub.current_rate}/hour</td>
+              <td>{calculateRemainingTime(sub.start_date, sub.duration_days)}</td>
+              <td>{customerCounts[sub.provider_id] || 0}</td>
               <td>
-                <button onClick={() => handleEditClick(sub)}>Edit</button>
-                <button onClick={() => handleAddCustomer(sub.id)}>
-                  Add Customer ({customerCounts[sub.id] || 0})
-                </button>
-                {customerCounts[sub.id] === 0 && (
-                  <button onClick={() => handleDeleteSubscription(sub.id)}>Delete</button>
-                )}
+                <button onClick={() => handleEdit(sub)}>Edit</button>
+                <button onClick={() => handleAddCustomer(sub)}>Add Customer</button>
+                <button onClick={() => handleDelete(sub.id)}>Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {showEditModal && selectedSubscription && (
-        <EditSubscriptionModal
-          isOpen={showEditModal}
-          onClose={() => setShowEditModal(false)}
-          subscription={selectedSubscription}
-          onUpdate={handleUpdateSubscription}
-        />
+      {showConfirmation && (
+        <div className="confirmation-dialog">
+          <p>Are you sure you want to delete this subscription? This action is irreversible.</p>
+          <button onClick={confirmDelete}>Yes, Delete</button>
+          <button onClick={() => setShowConfirmation(false)}>Cancel</button>
+        </div>
       )}
-      {showAddCustomerModal && selectedSubscription && (
-        <AddCustomerModal
-          isOpen={showAddCustomerModal}
-          onClose={() => setShowAddCustomerModal(false)}
-          onCustomerAdded={handleCustomerAdded}
-          subscriptionId={selectedSubscription.id}
-        />
-      )}
-      {showAddSubscriptionModal && (
+      {showEditModal && (
         <SubscriptionModal
-          show={showAddSubscriptionModal}
-          onClose={() => setShowAddSubscriptionModal(false)}
-          onAdd={handleSubscriptionAdded}
+          show={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onAdd={fetchSubscriptions}
+          subscription={selectedSubscription}
         />
       )}
-      {showGenerateTokenModal && selectedSubscription && selectedCustomerForToken && (
+      {showGenerateTokenModal && (
         <GenerateTokenModal
-          isOpen={showGenerateTokenModal}
+          show={showGenerateTokenModal}
           onClose={() => setShowGenerateTokenModal(false)}
-          onTokenGenerated={() => {
-            setShowGenerateTokenModal(false);
-            // Optionally, refresh data or show a success message
-          }}
-          customer={selectedCustomerForToken}
           subscription={selectedSubscription}
         />
       )}

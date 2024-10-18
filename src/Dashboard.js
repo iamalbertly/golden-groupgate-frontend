@@ -14,7 +14,7 @@ function Dashboard() {
   useEffect(() => {
     fetchDashboardData();
     fetchCustomers();
-    fetchActiveSubscriptions();
+    fetchSubscriptions();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -37,13 +37,15 @@ function Dashboard() {
     }
   };
 
-  const fetchActiveSubscriptions = async () => {
+  const fetchSubscriptions = async () => {
     try {
-      const response = await api.get('/active-subscriptions');
-      setActiveSubscriptions(response.data);
+      const response = await api.get('/subscriptions');
+      const allSubscriptions = response.data;
+      const activeSubscriptions = allSubscriptions.filter(sub => sub.is_active === 1);
+      setActiveSubscriptions(activeSubscriptions);
     } catch (error) {
-      console.error('Error fetching active subscriptions:', error.response?.data || error.message);
-      setError('Failed to load active subscriptions. ' + (error.response?.data?.details || 'Please try again later.'));
+      console.error('Error fetching subscriptions:', error.response?.data || error.message);
+      setError('Failed to load subscriptions. ' + (error.response?.data?.details || 'Please try again later.'));
     }
   };
 
