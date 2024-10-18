@@ -8,14 +8,9 @@ import GenerateTokenModal from './GenerateTokenModal';
 
 function SubscriptionManagement() {
   const [subscriptions, setSubscriptions] = useState([]);
-  const [error, setError] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showAddCustomerModal, setShowAddCustomerModal] = useState(false);
-  const [showAddSubscriptionModal, setShowAddSubscriptionModal] = useState(false);
-  const [selectedSubscription, setSelectedSubscription] = useState(null);
-  const [customerCounts, setCustomerCounts] = useState({});
-  const [showGenerateTokenModal, setShowGenerateTokenModal] = useState(false);
-  const [selectedCustomerForToken, setSelectedCustomerForToken] = useState(null);
+  const [error, setError] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [subscriptionToDelete, setSubscriptionToDelete] = useState(null);
 
   useEffect(() => {
     fetchSubscriptions();
