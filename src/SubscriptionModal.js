@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from './api';
-import './Modal.css';
+import './global.css';
 
 function SubscriptionModal({ show, onClose, onAdd, subscription }) {
   const [providers, setProviders] = useState([]);
@@ -10,6 +10,7 @@ function SubscriptionModal({ show, onClose, onAdd, subscription }) {
   const [durationDays, setDurationDays] = useState(subscription ? subscription.duration_days : 30);
   const [error, setError] = useState('');
   const [currency, setCurrency] = useState('USD');
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   useEffect(() => {
     fetchProviders();
@@ -40,6 +41,10 @@ function SubscriptionModal({ show, onClose, onAdd, subscription }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setShowConfirmation(true);
+  };
+
+  const confirmSubmit = async () => {
     try {
       if (subscription) {
         await api.put(`/subscriptions/${subscription.id}`, {
@@ -68,41 +73,51 @@ function SubscriptionModal({ show, onClose, onAdd, subscription }) {
   return (
     show && (
       <div className="modal">
-        <form onSubmit={handleSubmit}>
-          <select onChange={(e) => handleProviderChange(e.target.value)} value={selectedProvider || ''}>
-            <option value="">Select a provider</option>
-            {providers.map(provider => (
-              <option key={provider.id} value={provider.id}>{provider.name}</option>
-            ))}
-          </select>
-          <input
-            type="number"
-            value={cost}
-            onChange={(e) => setCost(e.target.value)}
-            placeholder="Cost"
-            required
-          />
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            placeholder="Start Date"
-            required
-          />
-          <input
-            type="number"
-            value={durationDays}
-            onChange={(e) => setDurationDays(e.target.value)}
-            placeholder="Duration (days)"
-            required
-          />
-          <select value={currency} onChange={(e) => setCurrency(e.target.value)} required>
-            <option value="USD">USD</option>
-            <option value="TZS">TZS</option>
-          </select>
-          <button type="submit">{subscription ? 'Update Subscription' : 'Add Subscription'}</button>
-          {error && <div className="error-message">{error}</div>}
-        </form>
+        <div className="modal-content">
+          <button className="close" onClick={onClose}>&times;</button>
+          <form onSubmit={handleSubmit}>
+            <select onChange={(e) => handleProviderChange(e.target.value)} value={selectedProvider || ''}>
+              <option value="">Select a provider</option>
+              {providers.map(provider => (
+                <option key={provider.id} value={provider.id}>{provider.name}</option>
+              ))}
+            </select>
+            <input
+              type="number"
+              value={cost}
+              onChange={(e) => setCost(e.target.value)}
+              placeholder="Cost"
+              required
+            />
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              placeholder="Start Date"
+              required
+            />
+            <input
+              type="number"
+              value={durationDays}
+              onChange={(e) => setDurationDays(e.target.value)}
+              placeholder="Duration (days)"
+              required
+            />
+            <select value={currency} onChange={(e) => setCurrency(e.target.value)} required>
+              <option value="USD">USD</option>
+              <option value="TZS">TZS</option>
+            </select>
+            <button type="submit">{subscription ? 'Update Subscription' : 'Add Subscription'}</button>
+            {error && <div className="error-message">{error}</div>}
+          </form>
+          {showConfirmation && (
+            <div className="confirmation-dialog">
+              <p>Are you sure you want to save this subscription?</p>
+              <button onClick={confirmSubmit}>Yes, Confirm</button>
+              <button onClick={() => setShowConfirmation(false)}>Cancel</button>
+            </div>
+          )}
+        </div>
       </div>
     )
   );

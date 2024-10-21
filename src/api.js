@@ -22,24 +22,19 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  response => {
-    console.log(`Received response from ${response.config.url}:`, response.status);
-    return response;
-  },
+  response => response,
   error => {
-    console.error('API Error:', error);
     if (error.response) {
-      console.error('Response data:', error.response.data);
-      console.error('Response status:', error.response.status);
-      console.error('Response headers:', error.response.headers);
+      console.error('API Error:', {
+        message: error.response.data.error,
+        status: error.response.status,
+        url: error.response.config.url
+      });
       if (error.response.status === 403) {
-        // Redirect to login if 403 Forbidden
         window.location.href = '/login';
       }
-    } else if (error.request) {
-      console.error('No response received:', error.request);
     } else {
-      console.error('Error setting up request:', error.message);
+      console.error('Network Error:', error.message);
     }
     return Promise.reject(error);
   }

@@ -1,31 +1,73 @@
 .navigation {
-  background-color: var(--secondary-color);
-  padding: 10px;
+  background-color: #24292e;
+  color: #ffffff;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.navigation a {
-  color: var(--text-color);
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-logo a {
+  color: #ffffff;
+  font-size: 1.5em;
+  font-weight: bold;
   text-decoration: none;
-  padding: 5px 10px;
 }
 
-.navigation a:hover {
-  background-color: var(--hover-color);
-  border-radius: 4px;
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
 }
 
-.navigation button {
-  background-color: var(--primary-color);
-  color: var(--text-color);
+.nav-links li {
+  display: flex;
+  align-items: center;
+}
+
+.nav-links a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #0366d6;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-user span {
+  font-size: 1em;
+}
+
+.nav-user button {
+  background-color: transparent;
   border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
+  color: #ffffff;
   cursor: pointer;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.3s;
 }
 
-.navigation button:hover {
-  background-color: var(--hover-color);
+.nav-user button:hover {
+  color: #d73a49;
 }

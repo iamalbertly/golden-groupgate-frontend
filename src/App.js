@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Login from './Login';
 import Dashboard from './Dashboard';
-import TokenOperations from './TokenOperations';
+import TokenManagement from './TokenManagement';
 import CustomerManagement from './CustomerManagement';
 import Navigation from './Navigation';
 import SubscriptionModal from './SubscriptionModal';
-import GenerateToken from './GenerateToken';
+import GenerateTokenModal from './GenerateTokenModal';
 import api from './api';
 import './App.css';
 import SubscriptionManagement from './SubscriptionManagement';
@@ -85,8 +85,8 @@ function App() {
             element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
           />
           <Route
-            path="/token-operations"
-            element={isAuthenticated ? <TokenOperations /> : <Navigate to="/login" />}
+            path="/token-management"
+            element={isAuthenticated ? <TokenManagement /> : <Navigate to="/login" />}
           />
           <Route
             path="/customers"
@@ -94,7 +94,7 @@ function App() {
           />
           <Route
             path="/generate-token/:customerId/:subscriptionId"
-            element={isAuthenticated ? <GenerateToken /> : <Navigate to="/login" />}
+            element={isAuthenticated ? <GenerateTokenModal /> : <Navigate to="/login" />}
           />
           <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} />
           <Route

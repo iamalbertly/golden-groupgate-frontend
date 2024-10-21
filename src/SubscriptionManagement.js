@@ -12,6 +12,7 @@ function SubscriptionManagement() {
   const [customerCounts, setCustomerCounts] = useState({});
   const [showEditModal, setShowEditModal] = useState(false);
   const [showGenerateTokenModal, setShowGenerateTokenModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
 
   useEffect(() => {
@@ -92,6 +93,7 @@ function SubscriptionManagement() {
     <div className="subscription-management">
       <h1>Subscription Management</h1>
       {error && <div className="error-message">{error}</div>}
+      <button onClick={() => setShowAddModal(true)}>Add New Subscription</button>
       <table>
         <thead>
           <tr>
@@ -135,6 +137,13 @@ function SubscriptionManagement() {
           onClose={() => setShowEditModal(false)}
           onAdd={fetchSubscriptions}
           subscription={selectedSubscription}
+        />
+      )}
+      {showAddModal && (
+        <SubscriptionModal
+          show={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onAdd={fetchSubscriptions}
         />
       )}
       {showGenerateTokenModal && (

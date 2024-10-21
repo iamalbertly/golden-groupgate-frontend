@@ -1,5 +1,5 @@
 import React from 'react';
-import './Modal.css';
+import './global.css';
 
 function ConfirmationDialog({ show, onConfirm, onCancel, message }) {
   if (!show) return null;

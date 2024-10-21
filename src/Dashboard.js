@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from './api';
 import './Dashboard.css';
 import CustomerModal from './CustomerModal';
+import GenerateTokenModal from './GenerateTokenModal';
 
 function Dashboard() {
   const [metrics, setMetrics] = useState({});
@@ -10,6 +11,8 @@ function Dashboard() {
   const [error, setError] = useState('');
   const [activeSubscriptions, setActiveSubscriptions] = useState([]);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [showGenerateTokenModal, setShowGenerateTokenModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -49,8 +52,9 @@ function Dashboard() {
     }
   };
 
-  const handleGenerateToken = async (customerId) => {
-    // Implement token generation logic
+  const handleGenerateToken = (customer) => {
+    setSelectedCustomer(customer);
+    setShowGenerateTokenModal(true);
   };
 
   const handleAddCustomer = (newCustomer) => {
@@ -100,13 +104,13 @@ function Dashboard() {
                 <td>{customer.tokenCount > 0 ? new Date(customer.latestExpiration).toLocaleString() : '0'}</td>
                 <td>
                   {activeSubscriptions.map(sub => (
-                    <Link 
-                      key={sub.id} 
-                      to={`/generate-token/${customer.id}/${sub.id}`}
+                    <button
+                      key={sub.id}
                       className="generate-token-btn"
+                      onClick={() => handleGenerateToken(customer)}
                     >
                       Generate {sub.service_name} Token
-                    </Link>
+                    </button>
                   ))}
                 </td>
               </tr>
@@ -119,6 +123,13 @@ function Dashboard() {
           show={showCustomerModal}
           onClose={() => setShowCustomerModal(false)}
           onAdd={handleAddCustomer}
+        />
+      )}
+      {showGenerateTokenModal && (
+        <GenerateTokenModal
+          show={showGenerateTokenModal}
+          onClose={() => setShowGenerateTokenModal(false)}
+          customer={selectedCustomer}
         />
       )}
     </div>

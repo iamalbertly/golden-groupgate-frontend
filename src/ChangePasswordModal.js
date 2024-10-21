@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import api from './api';
-import './Modal.css';
+import './global.css';
 
 function ChangePasswordModal({ onSubmit, onClose, username }) {
   const [currentPassword, setCurrentPassword] = useState('');

@@ -1,25 +1,25 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Navigation.css';
+import { FaHome, FaUser, FaSignOutAlt, FaList, FaCog } from 'react-icons/fa';
 
-function Navigation({ user, setIsAuthenticated }) {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    navigate('/login');
-  };
-
+function Navigation({ user, onLogout }) {
   return (
     <nav className="navigation">
-      <Link to="/dashboard">Dashboard</Link>
-      <Link to="/token-operations">Token Operations</Link>
-      <Link to="/customers">Customer Management</Link>
-      <Link to="/subscriptions">Subscription Management</Link> {/* Add this line */}
-      <div className="user-info">
-        {user && <span>Logged in as: {user.username}</span>}
-        <button onClick={handleLogout}>Logout</button>
+      <div className="nav-container">
+        <div className="nav-logo">
+          <Link to="/dashboard">GroupGate</Link>
+        </div>
+        <ul className="nav-links">
+          <li><Link to="/dashboard"><FaHome /> Dashboard</Link></li>
+          <li><Link to="/token-management"><FaList /> Token Management</Link></li>
+          <li><Link to="/customers"><FaUser /> Customers</Link></li>
+          <li><Link to="/subscriptions"><FaCog /> Subscriptions</Link></li>
+        </ul>
+        <div className="nav-user">
+          <span>{user?.username}</span>
+          <button onClick={onLogout}><FaSignOutAlt /> Logout</button>
+        </div>
       </div>
     </nav>
   );
